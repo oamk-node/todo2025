@@ -80,7 +80,7 @@ import { getToken, initializeTestDb, insertTestUser } from "./helper/test.js"
   })
 
   it ('should log in', async () => {
-    const response = await fetch("http://localhost:3001/user/login", {
+    const response = await fetch("http://localhost:3001/user/signin", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user })  

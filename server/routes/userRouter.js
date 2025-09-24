@@ -12,11 +12,15 @@ router.post('/signup', (req, res, next) => {
 
   if (!user || !user.email || !user.password) {
     const error = new Error('Email and password are required')
+    error.status = 400
     return next(error)
   }
 
   hash(user.password, 10, (err, hashedPassword) => {
-    if (err) return next(err)
+    if (err) {
+      console.log(err)
+      return next(err)
+    }
 
     pool.query('INSERT INTO account (email, password) VALUES ($1, $2) RETURNING *', 
       [user.email, hashedPassword], 
@@ -29,7 +33,7 @@ router.post('/signup', (req, res, next) => {
   }) 
 })
 
-router.post('/login', (req, res, next) => {
+router.post('/signin', (req, res, next) => {
   const { user } = req.body  
   if (!user || !user.email || !user.password) {
     const error = new Error('Email and password are required')
