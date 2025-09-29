@@ -4,7 +4,7 @@ services:
     name: todo-api
     env: node
     region: oregon
-    plan: free
+    plan: starter
     buildCommand: cd server && npm install
     startCommand: cd server && node initDb.js && node index.js
     healthCheckPath: /
@@ -43,20 +43,11 @@ services:
         generateValue: true
     autoDeploy: true
 
-  # Frontend React App
-  - type: web
+  # Frontend React App  
+  - type: static
     name: todo-frontend
-    env: static
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: DENY
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
     routes:
       - type: rewrite
         source: /*
@@ -74,4 +65,3 @@ databases:
     databaseName: todo_db
     user: todo_user
     region: oregon
-    plan: free
