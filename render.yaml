@@ -1,19 +1,15 @@
 services:
-  # Backend API Server
   - type: web
     name: todo-api
     env: node
-    region: oregon
-    plan: starter
+    plan: free
     buildCommand: cd server && npm install
     startCommand: cd server && node initDb.js && node index.js
-    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
-      # Database connection variables
       - key: DB_USER
         fromDatabase:
           name: todo-database
@@ -38,14 +34,12 @@ services:
         fromDatabase:
           name: todo-database
           property: database
-      # JWT Secret for authentication
       - key: JWT_SECRET
         generateValue: true
-    autoDeploy: true
 
-  # Frontend React App  
-  - type: static
+  - type: web
     name: todo-frontend
+    env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     routes:
@@ -58,10 +52,8 @@ services:
           type: web
           name: todo-api
           property: host
-    autoDeploy: true
 
 databases:
   - name: todo-database
     databaseName: todo_db
     user: todo_user
-    region: oregon
