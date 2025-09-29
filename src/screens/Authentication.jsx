@@ -10,12 +10,13 @@ export default function Authentication({authenticationMode}) {
   const { user, setUser,signUp, signIn } = useUser()
   const navigate = useNavigate()
 
-
+console.log("Signing....")
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     const signFunction = authenticationMode === AuthenticationMode.SignUp ? signUp : signIn
    
+    console
     signFunction().then(response =>{
       navigate(authenticationMode === Authentication.SignUp ? '/signin' : '/')
     })

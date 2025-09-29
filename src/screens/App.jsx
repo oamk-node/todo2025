@@ -3,7 +3,7 @@ import { useUser } from '../context/useUser'
 import axios from 'axios'
 import Row from '../components/Row'
 
-const url = "http://localhost:3001"
+const url = import.meta.env.VITE_API_URL
 
 function App() {
   const [task, setTask] = useState('')
