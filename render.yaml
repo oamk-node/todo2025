@@ -1,0 +1,102 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: todo-database
+    env: docker
+    repo: https://github.com/render-examples/postgresql.git
+    region: oregon
+    plan: free
+    # You can also use Render's managed PostgreSQL instead:
+    # Uncomment the following and comment out the above pserv section
+    # - type: pserv
+    #   name: todo-database
+    #   databaseName: todo_db
+    #   user: todo_user
+    #   region: oregon
+    #   plan: free
+
+  # Backend API Server
+  - type: web
+    name: todo-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && node initDb.js && node index.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # Database connection variables
+      - key: DB_USER
+        fromDatabase:
+          name: todo-database
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: todo-database
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: todo-database
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: todo-database
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: todo-database
+          property: database
+      - key: TEST_DB_NAME
+        fromDatabase:
+          name: todo-database
+          property: database
+      # JWT Secret for authentication
+      - key: JWT_SECRET
+        generateValue: true
+    # Auto-deploy when you push to main/master branch
+    autoDeploy: true
+
+  # Frontend React App
+  - type: web
+    name: todo-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    # Custom headers for SPA routing
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    # Redirect all routes to index.html for SPA routing
+    routes:
+      - type: redirect
+        source: /*
+        destination: /index.html
+        status: 200
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: todo-api
+          property: host
+        # This will automatically set the API URL to your backend service
+    autoDeploy: true
+
+databases:
+  # Alternative: Use Render's managed PostgreSQL
+  - name: todo-database
+    databaseName: todo_db
+    user: todo_user
+    region: oregon
+    plan: free
+    # This will automatically run your SQL initialization
+    # You may need to manually run the SQL commands from db.sql after deployment
